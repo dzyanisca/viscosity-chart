@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temperature-Viscosity Chart Comparison</title>
+    <!-- Pure CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Google Charts (legacy loader) -->
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+</head>
+<body>
+
+    <!-- CUT START -->
+
+    <table style="padding: 0px; margin: 0px; ">
+        <tbody>
+        
+        <tr>
+          <th width="40%">Operation data</th>
+          <th width="30%">Metrical</th>
+          <th width="30%">Imperial</th>
+        </tr>
+        
+        <tr>
+          <td>Select hydraulic oil:</td>
+          <td colspan="2">
+            <select tabindex="3" id="oil" size="1" style="width: 200px;">
+              <option value="ISO VG 22">Generic ISO VG 22, VI=100</option>
+              <option value="ISO VG 32">Generic ISO VG 32, VI=100</option>
+              <option selected="selected" value="ISO VG 46">Generic ISO VG 46, VI=100</option>
+              <option value="ISO VG 68">Generic ISO VG 68, VI=100</option>
+              <option value="custom">CUSTOM</option>
+            </select>
+          </td>
+        </tr>
+        
+        <tr>
+          <td style="border-top: grey 2px solid;">Temperature #1</td>
+          <td style="border-top: grey 2px solid;"><input id="temp1_m" class="calc" style="width: 100px;" type="number" min="-40" max="120" value="40.0" /> °C</td>
+          <td style="border-top: grey 2px solid;"><input id="temp1_i" class="calc" style="width: 100px;" type="number" min="-40" max="248" value="104.0" /> °F</td>
+        </tr>
+        
+        <tr>
+          <td>Kinematic viscosity at Temperature #1</td>
+          <td><input id="visc1_m" class="calc" style="width: 100px;" type="number" min="3" max="100000" value="46.00" /> cSt</td>
+          <td><input id="visc1_i" class="calc" style="width: 100px;" type="number" min="37" max="460000" value="212.64" /> SUS</td>
+        </tr>
+        
+        <tr>
+          <td style="border-top: grey 2px solid;">Temperature #2</td>
+          <td style="border-top: grey 2px solid;"><input id="temp2_m" class="calc" style="width: 100px;" type="number" min="-40" max="120" value="100.0" /> °C</td>
+          <td style="border-top: grey 2px solid;"><input id="temp2_i" class="calc" style="width: 100px;" type="number" min="-40" max="248" value="212.0" /> °F</td>
+        </tr>
+        
+        <tr>
+          <td>Kinematic viscosity at Temperature #2</td>
+          <td><input id="visc2_m" class="calc" style="width: 100px;" type="number" min="3" max="100000" value="6.76" /> cSt</td>
+          <td><input id="visc2_i" class="calc" style="width: 100px;" type="number" min="37" max="460000" value="47.99" /> SUS</td>
+        </tr>
+        
+        <tr>
+          <td style="border-top: grey 2px solid;">Temperature to calculate</td>
+          <td style="border-top: grey 2px solid;"><input id="tempx_m" class="specified" style="width: 100px;" type="number" min="-40" max="120" value="10.0" /> °C</td>
+          <td style="border-top: grey 2px solid;"><input id="tempx_i" class="specified" style="width: 100px;" type="number" min="-40" max="248" value="50.0" /> °F</td>
+        </tr>
+        
+        <tr>
+          <th>Results:</th>
+          <th colspan="2"></th>
+        </tr>
+        
+        <tr>
+          <td>Kinematic viscosity at calc. temperature</td>
+          <td><input id="viscx_m" disabled="disabled" style="width: 100px; background:#EEE;" type="number" value="264.12" /> cSt</td>
+          <td><input id="viscx_i" disabled="disabled" style="width: 100px; background:#EEE;" type="number" value="1224.20" /> SUS</td>
+        </tr>
+        
+        <tr>
+          <td>Viscosity Index</td>
+          <td colspan=2>
+            <input id="vi" disabled="disabled" style="width: 100px; background:#EEE;float:left;margin-bottom:40px;margin-right: 5px;" type="number" value="100" />
+            <div><small id="procedure">by ISO 2909:2002 Procedures A and B<br>by ASTM D2270-04 Procedures A and B<br>by ГОСТ 25371-2018 Методы А и Б</small></div>
+          </td>
+        </tr>
+        
+        </tbody>
+        </table>
+        
+        <p></p>
+        
+        <div id="chart_div"></div>
+        
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script src="https://fluidpower.pro/calc/l_and_h.js"></script>
+        <script src="https://fluidpower.pro/calc/viscosity-chart3.js?ver=8"></script>
+    
+
+        <!-- CUT END -->
+</body>
+</html>
