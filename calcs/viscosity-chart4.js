@@ -84,6 +84,10 @@ function oilField(id, oil) {
     return jQuery("#" + id + (oil === 2 ? "_oil2" : ""));
 }
 
+function oilLegend(oil) {
+    return oilField("oil_legend", oil).val().trim() || "Oil " + oil + " - " + oilField("oil", oil).val();
+}
+
 var oil2Visible = false;
 var chartReady = false;
 var chart;
@@ -120,7 +124,7 @@ function getChartData() {
         for (var oil = 1; oil <= (oil2Visible ? 2 : 1); oil++) {
             var viscosity = getViscx(temperature, oil);
             row.push(Number.isFinite(viscosity) && viscosity > 0 ? viscosity : null);
-            row.push("Oil " + oil + ": " + viscosity.toFixed(rnd_visc) + " cSt @ " + temperature.toFixed(rnd_temp) + " °C\n" +
+            row.push(oilLegend(oil) + ": " + viscosity.toFixed(rnd_visc) + " cSt @ " + temperature.toFixed(rnd_temp) + " °C\n" +
                 cSt_to_SUS(viscosity).toFixed(rnd_visc) + " SUS @ " + C_to_F(temperature).toFixed(rnd_temp) + " ?F");
         }
         rows.push(row);
@@ -133,7 +137,7 @@ function drawChart() {
     chartData = new google.visualization.DataTable();
     chartData.addColumn("number", "Temperature, °C");
     for (var oil = 1; oil <= (oil2Visible ? 2 : 1); oil++) {
-        chartData.addColumn("number", "Oil " + oil + " - " + oilField("oil", oil).val());
+        chartData.addColumn("number", oilLegend(oil));
         chartData.addColumn({ type: "string", role: "tooltip" });
     }
     chartData.addRows(getChartData());
@@ -173,6 +177,7 @@ secondTable.attr("id", "oil2_table").prop("hidden", true);
 secondTable.find("[id]").each(function () { this.id += "_oil2"; });
 secondTable.find("caption").text("Oil 2 Chart").css("color", "#ff00ff");
 secondTable.insertAfter("#oil1_table");
+oilField("oil_legend", 2).val("").attr("aria-label", "Oil 2 chart legend name");
 // Start with a different preset so both curves are immediately visible.
 oilField("oil", 2).val("ISO VG 68");
 applyPreset(2);
@@ -210,6 +215,8 @@ jQuery(".calc").on("change", function () {
     oilField("oil", oil).val("custom");
     recalc();
 });
+
+jQuery(".oil-legend").on("input", drawChart);
 
 jQuery("#oil, #oil_oil2").on("change", function () {
     applyPreset(this.id === "oil" ? 1 : 2);

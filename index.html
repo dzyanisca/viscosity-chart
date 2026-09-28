@@ -33,14 +33,8 @@
         <tbody>
         
         <tr>
-          <th width="40%">Operation data</th>
-          <th width="30%">Metrical</th>
-          <th width="30%">Imperial</th>
-        </tr>
-        
-        <tr>
           <td>Select hydraulic oil:</td>
-          <td colspan="2">
+          <td>
             <select tabindex="3" id="oil" size="1" style="width: 200px;">
               <option value="ISO VG 22">Generic ISO VG 22, VI=100</option>
               <option value="ISO VG 32">Generic ISO VG 32, VI=100</option>
@@ -49,6 +43,15 @@
               <option value="custom">CUSTOM</option>
             </select>
           </td>
+          <td>
+            <input id="oil_legend" class="oil-legend" type="text" value="" placeholder="Chart legend name" aria-label="Oil 1 chart legend name" style="width: 100%; box-sizing: border-box;" />
+          </td>
+        </tr>
+        
+        <tr>
+          <th width="40%">Operation data</th>
+          <th width="30%">Metrical</th>
+          <th width="30%">Imperial</th>
         </tr>
         
         <tr>
@@ -99,15 +102,19 @@
         
         <p><button id="toggle_oil2" class="fpp-button" type="button" aria-expanded="false" aria-controls="oil2_table">Add Oil 2 Chart</button></p>
 
-        <table class="oil-chart-table">
+        <table class="oil-chart-table" style="margin-top:30px;">
           <colgroup>
             <col style="width: 40%;">
             <col style="width: 30%;">
             <col style="width: 30%;">
           </colgroup>
-          <tbody>
+          <tbody>        
+          <tr>
+            <th>Temperature to calculate</th>
+            <th colspan="2"></th>
+          </tr>
             <tr>
-              <td style="border-top: grey 2px solid;">Temperature to calculate</td>
+              <td style="border-top: grey 2px solid;">Type the temperature to calculate:</td>
               <td style="border-top: grey 2px solid;"><input id="tempx_m" class="specified" aria-label="Temperature to calculate in Celsius" style="width: 100px;" type="number" min="-40" max="120" value="10.0" /> °C</td>
               <td style="border-top: grey 2px solid;"><input id="tempx_i" class="specified" aria-label="Temperature to calculate in Fahrenheit" style="width: 100px;" type="number" min="-40" max="248" value="50.0" /> °F</td>
             </tr>
@@ -118,7 +125,7 @@
         
         <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
         <script src="calcs/l_and_h.js"></script>
-        <script src="calcs/viscosity-chart3.js"></script>
+        <script src="calcs/viscosity-chart4.js"></script>
     
 
         <!-- CUT END -->
