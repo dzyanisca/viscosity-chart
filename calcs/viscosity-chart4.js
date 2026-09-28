@@ -85,7 +85,8 @@ function oilField(id, oil) {
 }
 
 function oilLegend(oil) {
-    return oilField("oil_legend", oil).val().trim() || "Oil " + oil + " - " + oilField("oil", oil).val();
+    var name = oilField("oil_legend", oil).val().trim() || oilField("oil", oil).val();
+    return "Oil " + oil + ": " + name;
 }
 
 var oil2Visible = false;
@@ -177,7 +178,7 @@ secondTable.attr("id", "oil2_table").prop("hidden", true);
 secondTable.find("[id]").each(function () { this.id += "_oil2"; });
 secondTable.find("caption").text("Oil 2 Chart").css("color", "#ff00ff");
 secondTable.insertAfter("#oil1_table");
-oilField("oil_legend", 2).val("").attr("aria-label", "Oil 2 chart legend name");
+oilField("oil_legend", 2).val("").attr("aria-label", "Oil 2 chart legend name").attr("placeholder", "Oil 2 Chart legend");
 // Start with a different preset so both curves are immediately visible.
 oilField("oil", 2).val("ISO VG 68");
 applyPreset(2);
