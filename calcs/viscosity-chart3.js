@@ -34,11 +34,11 @@ function cSt_to_SUS(e) {
     return 52 < (e = parseFloat(e)) ? 4.635 * e : 20.5 < e ? (e + Math.sqrt(Math.pow(e, 2) + 118.07)) / 0.4386 : 1 < e ? (e + Math.sqrt(Math.pow(e, 2) + 175.2)) / 0.4506 : NaN;
 }
 
-function getViscx(e) {
-    var t = parseFloat(jQuery("#temp1_m").val()),
-        r = parseFloat(jQuery("#visc1_m").val()),
-        a = parseFloat(jQuery("#temp2_m").val()),
-        i = parseFloat(jQuery("#visc2_m").val()),
+function getViscx(e, oil) {
+    var t = parseFloat(oilField("temp1_m", oil).val()),
+        r = parseFloat(oilField("visc1_m", oil).val()),
+        a = parseFloat(oilField("temp2_m", oil).val()),
+        i = parseFloat(oilField("visc2_m", oil).val()),
         o = 273.15,
         l = 0.7;
     return (
@@ -49,14 +49,14 @@ function getViscx(e) {
     );
 }
 
-function getVI() {
+function getVI(oil) {
     var e,
         t,
-        r = parseFloat(jQuery("#temp1_m").val()),
-        a = parseFloat(jQuery("#visc1_m").val()),
-        i = parseFloat(jQuery("#temp2_m").val()),
-        o = parseFloat(jQuery("#visc2_m").val());
-    if (((e = 100 == r ? a : 100 == i ? o : getViscx(100)), (t = 40 == r ? a : 40 == i ? o : getViscx(40)), e < 2))
+        r = parseFloat(oilField("temp1_m", oil).val()),
+        a = parseFloat(oilField("visc1_m", oil).val()),
+        i = parseFloat(oilField("temp2_m", oil).val()),
+        o = parseFloat(oilField("visc2_m", oil).val());
+    if (((e = 100 == r ? a : 100 == i ? o : getViscx(100, oil)), (t = 40 == r ? a : 40 == i ? o : getViscx(40, oil)), e < 2))
         var l = e * (1.35017 + 0.59482 * e),
             c = e * (1.5215 + 0.7092 * e);
     else if (70 < e) (l = 0.1684 * Math.pow(e, 2) + 11.85 * e - 97), (c = 0.8353 * Math.pow(e, 2) + 14.67 * e - 216);
@@ -70,126 +70,165 @@ function getVI() {
         n = Math.round((Math.pow(10, u) - 1) / 0.00715 + 100);
     return (
         100 == n
-            ? jQuery("#procedure").html("by ISO 2909:2002 Procedures A and B<br>by ASTM D2270-04 Procedures A and B<br>by Ð“ÐžÐ¡Ð¢ 25371-2018 ÐœÐµÑ‚Ð¾Ð´Ñ‹ Ð Ð¸ Ð‘")
+            ? oilField("procedure", oil).html("by ISO 2909:2002 Procedures A and B<br>by ASTM D2270-04 Procedures A and B<br>by Ð“ÐžÐ¡Ð¢ 25371-2018 ÐœÐµÑ‚Ð¾Ð´Ñ‹ Ð Ð¸ Ð‘")
             : n < 100
-            ? ((n = Math.round(((c - t) / (c - l)) * 100)), jQuery("#procedure").html("by ISO 2909:2002 Procedure A<br>by ASTM D2270-04 Procedure A<br>by Ð“ÐžÐ¡Ð¢ 25371-2018 ÐœÐµÑ‚Ð¾Ð´ Ð"))
-            : jQuery("#procedure").html("by ISO 2909:2002 Procedure B<br>by ASTM D2270-04 Procedure B<br>by Ð“ÐžÐ¡Ð¢ 25371-2018 ÐœÐµÑ‚Ð¾Ð´ Ð‘"),
+            ? ((n = Math.round(((c - t) / (c - l)) * 100)), oilField("procedure", oil).html("by ISO 2909:2002 Procedure A<br>by ASTM D2270-04 Procedure A<br>by Ð“ÐžÐ¡Ð¢ 25371-2018 ÐœÐµÑ‚Ð¾Ð´ Ð"))
+            : oilField("procedure", oil).html("by ISO 2909:2002 Procedure B<br>by ASTM D2270-04 Procedure B<br>by Ð“ÐžÐ¡Ð¢ 25371-2018 ÐœÐµÑ‚Ð¾Ð´ Ð‘"),
         n
     );
 }
 
+
+// Keep Oil 1's original field IDs and suffix the second table's fields.
+function oilField(id, oil) {
+    return jQuery("#" + id + (oil === 2 ? "_oil2" : ""));
+}
+
+var oil2Visible = false;
+var chartReady = false;
+var chart;
+var chartData;
+var options = {
+    legend: { position: "bottom" },
+    series: { 0: { color: "#1c91c0" }, 1: { color: "#ff00ff" } },
+    title: "Temperature-Viscosity Chart",
+    height: 600,
+    hAxis: { title: "Temperature, ?C", gridlines: { count: 16 }, titleTextStyle: { italic: false, color: "brown" } },
+    vAxis: { title: "Kinematic Viscosity, cSt", scaleType: "log", titleTextStyle: { italic: false, color: "brown" } },
+    crosshair: { color: "#e7711b", opacity: 0.8, trigger: "selection" }
+};
+
+function updateResults() {
+    var temperature = parseFloat(jQuery("#tempx_m").val());
+    for (var oil = 1; oil <= (oil2Visible ? 2 : 1); oil++) {
+        var viscosity = getViscx(temperature, oil);
+        oilField("viscx_m", oil).val(viscosity.toFixed(rnd_visc));
+        oilField("viscx_i", oil).val(cSt_to_SUS(viscosity).toFixed(rnd_visc));
+        oilField("vi", oil).val(getVI(oil));
+    }
+}
+
 function recalc() {
-    var e = parseFloat(jQuery("#tempx_m").val());
-    jQuery("#viscx_m").val(getViscx(e).toFixed(rnd_visc)), jQuery("#viscx_i").val(cSt_to_SUS(jQuery("#viscx_m").val()).toFixed(rnd_visc)), jQuery("#vi").val(getVI()), drawChart();
+    updateResults();
+    drawChart();
 }
 
 function getChartData() {
-    var e = parseFloat(jQuery("#tempx_m").val()),
-        t = new Array(),
-        r = min_temp,
-        a = 1;
-    Graph.selection = !1;
-    do {
-        (t_m = parseFloat(r)), (t_i = C_to_F(r));
-        var i = parseFloat(getViscx(r)),
-            o = cSt_to_SUS(i);
-        t.push([t_m, i, i.toFixed(rnd_visc) + " cSt @ " + t_m.toFixed(rnd_temp) + " *C\r\n" + o.toFixed(rnd_visc) + " SUS @ " + t_i.toFixed(rnd_temp) + " *F"]),
-            e <= r + temp_step && 0 == Graph.selection && (Graph.selection = [{ row: a, column: 1 }]),
-            (r += temp_step),
-            a++;
-    } while (r <= max_temp);
-    return t;
+    var rows = [];
+    for (var temperature = min_temp; temperature <= max_temp; temperature += temp_step) {
+        var row = [temperature];
+        for (var oil = 1; oil <= (oil2Visible ? 2 : 1); oil++) {
+            var viscosity = getViscx(temperature, oil);
+            row.push(Number.isFinite(viscosity) && viscosity > 0 ? viscosity : null);
+            row.push("Oil " + oil + ": " + viscosity.toFixed(rnd_visc) + " cSt @ " + temperature.toFixed(rnd_temp) + " ?C\n" +
+                cSt_to_SUS(viscosity).toFixed(rnd_visc) + " SUS @ " + C_to_F(temperature).toFixed(rnd_temp) + " ?F");
+        }
+        rows.push(row);
+    }
+    return rows;
 }
 
 function drawChart() {
-    var l = new google.visualization.DataTable();
-    function e() {
-        var o = new google.visualization.LineChart(document.getElementById("chart_div"));
-        o.draw(l, options),
-            o.setSelection(Graph.selection),
-            google.visualization.events.addListener(o, "select", function () {
-                var e = o.getSelection();
-                if (0 < e.length) {
-                    for (var t = 0; t < e.length; t++) var r = e[t];
-                    var a = parseFloat(l.getFormattedValue(r.row, r.column).replace(",", "")),
-                        i = parseFloat(l.getFormattedValue(r.row, 0));
-                    jQuery("#tempx_m").val(i), jQuery("#viscx_m").val(a), jQuery("#tempx_i").val(C_to_F(i).toFixed(rnd_temp)), jQuery("#viscx_i").val(cSt_to_SUS(a).toFixed(rnd_visc));
-                }
-            });
+    if (!chartReady) return;
+    chartData = new google.visualization.DataTable();
+    chartData.addColumn("number", "Temperature, ?C");
+    for (var oil = 1; oil <= (oil2Visible ? 2 : 1); oil++) {
+        chartData.addColumn("number", "Oil " + oil + " ? " + oilField("oil", oil).val());
+        chartData.addColumn({ type: "string", role: "tooltip" });
     }
-    l.addColumn("number", "Temperature, *C"), l.addColumn("number", "Viscosity, cSt"), l.addColumn({ type: "string", role: "tooltip" }), l.addRows(getChartData()), (window.onload = e()), (window.onresize = e);
+    chartData.addRows(getChartData());
+    chart.draw(chartData, options);
+    var temperature = parseFloat(jQuery("#tempx_m").val());
+    var selection = [];
+    if (Number.isFinite(temperature) && temperature >= min_temp && temperature <= max_temp) {
+        var row = Math.round((temperature - min_temp) / temp_step);
+        selection.push({ row: row, column: 1 });
+        if (oil2Visible) selection.push({ row: row, column: 3 });
+    }
+    chart.setSelection(selection);
 }
 
-jQuery(".specified").change(function () {
-    switch (jQuery(this).attr("id")) {
-        case "tempx_m":
-            jQuery("#tempx_i").val(C_to_F(jQuery("#tempx_m").val()).toFixed(rnd_temp));
-            break;
-        case "tempx_i":
-            jQuery("#tempx_m").val(F_to_C(jQuery("#tempx_i").val()).toFixed(rnd_temp));
+function applyPreset(oil) {
+    var presets = {
+        "ISO VG 22": [22, 4.29],
+        "ISO VG 32": [32, 5.36],
+        "ISO VG 46": [46, 6.76],
+        "ISO VG 68": [68, 8.73]
+    };
+    var preset = presets[oilField("oil", oil).val()];
+    if (preset) {
+        oilField("temp1_m", oil).val(40);
+        oilField("visc1_m", oil).val(preset[0]);
+        oilField("temp2_m", oil).val(100);
+        oilField("visc2_m", oil).val(preset[1]);
+    }
+    for (var point = 1; point <= 2; point++) {
+        oilField("temp" + point + "_i", oil).val(C_to_F(oilField("temp" + point + "_m", oil).val()).toFixed(rnd_temp));
+        oilField("visc" + point + "_i", oil).val(cSt_to_SUS(oilField("visc" + point + "_m", oil).val()).toFixed(rnd_visc));
+    }
+}
+
+var secondTable = jQuery("#oil1_table").clone();
+secondTable.attr("id", "oil2_table").prop("hidden", true);
+secondTable.find("[id]").each(function () { this.id += "_oil2"; });
+secondTable.find("caption").text("Oil 2 Chart").css("color", "#ff00ff");
+secondTable.insertAfter("#oil1_table");
+// Start with a different preset so both curves are immediately visible.
+oilField("oil", 2).val("ISO VG 68");
+applyPreset(2);
+
+jQuery("#toggle_oil2").on("click", function () {
+    oil2Visible = !oil2Visible;
+    secondTable.prop("hidden", !oil2Visible);
+    jQuery(this).text(oil2Visible ? "Hide Oil 2 Chart" : "Add Oil 2 Chart").attr("aria-expanded", String(oil2Visible));
+    recalc();
+});
+
+jQuery(".specified").on("change", function () {
+    if (this.id === "tempx_m") {
+        jQuery("#tempx_i").val(C_to_F(this.value).toFixed(rnd_temp));
+    } else {
+        jQuery("#tempx_m").val(F_to_C(this.value).toFixed(rnd_temp));
     }
     recalc();
-}),
-    jQuery(".calc").change(function () {
-        switch (jQuery(this).attr("id")) {
-            case "temp1_m":
-                jQuery("#temp1_i").val(C_to_F(jQuery("#temp1_m").val()).toFixed(rnd_temp));
-                break;
-            case "temp1_i":
-                jQuery("#temp1_m").val(F_to_C(jQuery("#temp1_i").val()).toFixed(rnd_temp));
-                break;
-            case "visc1_m":
-                jQuery("#visc1_m").val() < 2 && (alert("Viscosity value is out of allowable range."), jQuery("#visc1_m").val(2)), jQuery("#visc1_i").val(cSt_to_SUS(jQuery("#visc1_m").val()).toFixed(rnd_visc));
-                break;
-            case "visc1_i":
-                jQuery("#visc1_i").val() < 34 && (alert("Viscosity value is out of allowable range."), jQuery("#visc1_i").val(34)), jQuery("#visc1_m").val(SUS_to_cSt(jQuery("#visc1_i").val()).toFixed(rnd_visc));
-                break;
-            case "temp2_m":
-                jQuery("#temp2_i").val(C_to_F(jQuery("#temp2_m").val()).toFixed(rnd_temp));
-                break;
-            case "temp2_i":
-                jQuery("#temp2_m").val(F_to_C(jQuery("#temp2_i").val()).toFixed(rnd_temp));
-                break;
-            case "visc2_m":
-                jQuery("#visc2_m").val() < 2 && (alert("Viscosity value is out of allowable range."), jQuery("#visc2_m").val(2)), jQuery("#visc2_i").val(cSt_to_SUS(jQuery("#visc2_m").val()).toFixed(rnd_visc));
-                break;
-            case "visc2_i":
-                jQuery("#visc2_i").val() < 34 && (alert("Viscosity value is out of allowable range."), jQuery("#visc2_i").val(34)), jQuery("#visc2_m").val(SUS_to_cSt(jQuery("#visc2_i").val()).toFixed(rnd_visc));
-        }
-        jQuery("#oil option[value=custom]").attr("selected", "selected"), recalc();
-    }),
+});
 
-    jQuery("#oil").change(function () {
-        switch (jQuery("#oil").val()) {
-            case "ISO VG 22":
-                jQuery("#temp1_m").val(40), jQuery("#visc1_m").val(22), jQuery("#temp2_m").val(100), jQuery("#visc2_m").val(4.29);
-                break;
-            case "ISO VG 32":
-                jQuery("#temp1_m").val(40), jQuery("#visc1_m").val(32), jQuery("#temp2_m").val(100), jQuery("#visc2_m").val(5.36);
-                break;
-            case "ISO VG 46":
-                jQuery("#temp1_m").val(40), jQuery("#visc1_m").val(46), jQuery("#temp2_m").val(100), jQuery("#visc2_m").val(6.76);
-                break;
-            case "ISO VG 68":
-                jQuery("#temp1_m").val(40), jQuery("#visc1_m").val(68), jQuery("#temp2_m").val(100), jQuery("#visc2_m").val(8.73);
-        }
+jQuery(".calc").on("change", function () {
+    var oil = this.id.endsWith("_oil2") ? 2 : 1;
+    var id = this.id.replace(/_oil2$/, "");
+    var metric = id.endsWith("_m");
+    var temperature = id.startsWith("temp");
+    var value = parseFloat(this.value);
+    if (!temperature && value < (metric ? 2 : 34)) {
+        alert("Viscosity value is out of allowable range.");
+        value = metric ? 2 : 34;
+        jQuery(this).val(value);
+    }
+    var converted = temperature ? (metric ? C_to_F(value) : F_to_C(value)) :
+        (metric ? cSt_to_SUS(value) : SUS_to_cSt(value));
+    oilField(id.slice(0, -1) + (metric ? "i" : "m"), oil).val(converted.toFixed(temperature ? rnd_temp : rnd_visc));
+    oilField("oil", oil).val("custom");
+    recalc();
+});
 
-        jQuery("#temp1_i").val(C_to_F(jQuery("#temp1_m").val()).toFixed(rnd_temp)),
-            jQuery("#visc1_i").val(cSt_to_SUS(jQuery("#visc1_m").val()).toFixed(rnd_visc)),
-            jQuery("#temp2_i").val(C_to_F(jQuery("#temp2_m").val()).toFixed(rnd_temp)),
-            jQuery("#visc2_i").val(cSt_to_SUS(jQuery("#visc2_m").val()).toFixed(rnd_visc)),
-            recalc();
+jQuery("#oil, #oil_oil2").on("change", function () {
+    applyPreset(this.id === "oil" ? 1 : 2);
+    recalc();
+});
+
+recalc();
+google.charts.load("current", { packages: ["corechart"] });
+google.charts.setOnLoadCallback(function () {
+    chart = new google.visualization.LineChart(document.getElementById("chart_div"));
+    chartReady = true;
+    google.visualization.events.addListener(chart, "select", function () {
+        var selection = chart.getSelection();
+        if (!selection.length || selection[0].row == null) return;
+        var temperature = chartData.getValue(selection[0].row, 0);
+        jQuery("#tempx_m").val(temperature.toFixed(rnd_temp));
+        jQuery("#tempx_i").val(C_to_F(temperature).toFixed(rnd_temp));
+        updateResults();
     });
-
-var Graph = new Object(),
-    options = {
-        legend: { position: "none" },
-        series: { 0: { color: "#1c91c0" } },
-        title: "Temperature-Viscosity Chart",
-        height: 600,
-        hAxis: { title: "Temperature, *C", gridlines: { count: 16 }, titleTextStyle: { italic: !1, color: "brown" } },
-        vAxis: { title: "Kinematic Viscosity, cSt", scaleType: "log", titleTextStyle: { italic: !1, color: "brown" } },
-        crosshair: { color: "#e7711b", opacity: 0.8, trigger: "selection" },
-    };
-    
-google.load("visualization", "1", { packages: ["corechart", "line"] }), google.setOnLoadCallback(drawChart);
+    drawChart();
+    window.addEventListener("resize", drawChart);
+});
