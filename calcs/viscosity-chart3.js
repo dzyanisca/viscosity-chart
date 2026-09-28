@@ -70,10 +70,10 @@ function getVI(oil) {
         n = Math.round((Math.pow(10, u) - 1) / 0.00715 + 100);
     return (
         100 == n
-            ? oilField("procedure", oil).html("by ГОСТ 25371-2018 Методы А и Б")
+            ? oilField("procedure", oil).html("by ISO 2909:2002 Procedures A and B<br>by ASTM D2270-04 Procedures A and B<br>by ГОСТ 25371-2018 Методы А и Б")
             : n < 100
-            ? ((n = Math.round(((c - t) / (c - l)) * 100)), oilField("procedure", oil).html("by ГОСТ 25371-2018 Метод А"))
-            : oilField("procedure", oil).html("by ГОСТ 25371-2018 Метод Б"),
+            ? ((n = Math.round(((c - t) / (c - l)) * 100)), oilField("procedure", oil).html("by ISO 2909:2002 Procedure A<br>by ASTM D2270-04 Procedure A<br>by ГОСТ 25371-2018 Метод А"))
+            : oilField("procedure", oil).html("by ISO 2909:2002 Procedure B<br>by ASTM D2270-04 Procedure B<br>by ГОСТ 25371-2018 Метод Б"),
         n
     );
 }
@@ -93,7 +93,7 @@ var options = {
     series: { 0: { color: "#1c91c0" }, 1: { color: "#ff00ff" } },
     title: "Temperature-Viscosity Chart",
     height: 600,
-    hAxis: { title: "Temperature, ?C", gridlines: { count: 16 }, titleTextStyle: { italic: false, color: "brown" } },
+    hAxis: { title: "Temperature, °C", gridlines: { count: 16 }, titleTextStyle: { italic: false, color: "brown" } },
     vAxis: { title: "Kinematic Viscosity, cSt", scaleType: "log", titleTextStyle: { italic: false, color: "brown" } },
     crosshair: { color: "#e7711b", opacity: 0.8, trigger: "selection" }
 };
@@ -120,7 +120,7 @@ function getChartData() {
         for (var oil = 1; oil <= (oil2Visible ? 2 : 1); oil++) {
             var viscosity = getViscx(temperature, oil);
             row.push(Number.isFinite(viscosity) && viscosity > 0 ? viscosity : null);
-            row.push("Oil " + oil + ": " + viscosity.toFixed(rnd_visc) + " cSt @ " + temperature.toFixed(rnd_temp) + " ?C\n" +
+            row.push("Oil " + oil + ": " + viscosity.toFixed(rnd_visc) + " cSt @ " + temperature.toFixed(rnd_temp) + " °C\n" +
                 cSt_to_SUS(viscosity).toFixed(rnd_visc) + " SUS @ " + C_to_F(temperature).toFixed(rnd_temp) + " ?F");
         }
         rows.push(row);
@@ -131,9 +131,9 @@ function getChartData() {
 function drawChart() {
     if (!chartReady) return;
     chartData = new google.visualization.DataTable();
-    chartData.addColumn("number", "Temperature, ?C");
+    chartData.addColumn("number", "Temperature, °C");
     for (var oil = 1; oil <= (oil2Visible ? 2 : 1); oil++) {
-        chartData.addColumn("number", "Oil " + oil + " ? " + oilField("oil", oil).val());
+        chartData.addColumn("number", "Oil " + oil + " - " + oilField("oil", oil).val());
         chartData.addColumn({ type: "string", role: "tooltip" });
     }
     chartData.addRows(getChartData());
