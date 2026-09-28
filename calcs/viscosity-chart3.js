@@ -70,10 +70,10 @@ function getVI(oil) {
         n = Math.round((Math.pow(10, u) - 1) / 0.00715 + 100);
     return (
         100 == n
-            ? oilField("procedure", oil).html("by ISO 2909:2002 Procedures A and B<br>by ASTM D2270-04 Procedures A and B<br>by Ð“ÐžÐ¡Ð¢ 25371-2018 ÐœÐµÑ‚Ð¾Ð´Ñ‹ Ð Ð¸ Ð‘")
+            ? oilField("procedure", oil).html("by ГОСТ 25371-2018 Методы А и Б")
             : n < 100
-            ? ((n = Math.round(((c - t) / (c - l)) * 100)), oilField("procedure", oil).html("by ISO 2909:2002 Procedure A<br>by ASTM D2270-04 Procedure A<br>by Ð“ÐžÐ¡Ð¢ 25371-2018 ÐœÐµÑ‚Ð¾Ð´ Ð"))
-            : oilField("procedure", oil).html("by ISO 2909:2002 Procedure B<br>by ASTM D2270-04 Procedure B<br>by Ð“ÐžÐ¡Ð¢ 25371-2018 ÐœÐµÑ‚Ð¾Ð´ Ð‘"),
+            ? ((n = Math.round(((c - t) / (c - l)) * 100)), oilField("procedure", oil).html("by ГОСТ 25371-2018 Метод А"))
+            : oilField("procedure", oil).html("by ГОСТ 25371-2018 Метод Б"),
         n
     );
 }
