@@ -6,8 +6,8 @@ https://fluidpower.pro
 var rnd_temp = 1,
     rnd_visc = 2,
     rnd_vi = 0,
-    min_temp = -30,
-    max_temp = 120,
+    min_temp = -40,
+    max_temp = 100,
     temp_step = 1;
 
 function log10(e) {
@@ -135,6 +135,9 @@ function getChartData() {
 
 function drawChart() {
     if (!chartReady) return;
+    var chartOptions = Object.assign({}, options, {
+        hAxis: Object.assign({}, options.hAxis, { viewWindow: { min: min_temp, max: max_temp } })
+    });
     chartData = new google.visualization.DataTable();
     chartData.addColumn("number", "Temperature, °C");
     for (var oil = 1; oil <= (oil2Visible ? 2 : 1); oil++) {
@@ -142,7 +145,7 @@ function drawChart() {
         chartData.addColumn({ type: "string", role: "tooltip" });
     }
     chartData.addRows(getChartData());
-    chart.draw(chartData, options);
+    chart.draw(chartData, chartOptions);
     var temperature = parseFloat(jQuery("#tempx_m").val());
     var selection = [];
     if (Number.isFinite(temperature) && temperature >= min_temp && temperature <= max_temp) {
@@ -190,12 +193,51 @@ jQuery("#toggle_oil2").on("click", function () {
     recalc();
 });
 
-jQuery(".specified").on("change", function () {
+jQuery("#tempx_m, #tempx_i").on("change", function () {
     if (this.id === "tempx_m") {
         jQuery("#tempx_i").val(C_to_F(this.value).toFixed(rnd_temp));
     } else {
         jQuery("#tempx_m").val(F_to_C(this.value).toFixed(rnd_temp));
     }
+    recalc();
+});
+
+function setChartScale(which, metric) {
+    var id = which + "_temp_" + (metric ? "m" : "i");
+    var value = parseFloat(jQuery("#" + id).val());
+    var limits = which === "min" ? (metric ? [-60, 0] : [-76, 32]) : (metric ? [0, 120] : [32, 248]);
+    if (!Number.isFinite(value)) return false;
+    value = Math.max(limits[0], Math.min(limits[1], value));
+    var celsius = metric ? value : F_to_C(value);
+    var fahrenheit = C_to_F(celsius);
+    jQuery("#" + which + "_temp_m").val(celsius.toFixed(rnd_temp));
+    jQuery("#" + which + "_temp_i").val(fahrenheit.toFixed(rnd_temp));
+    return celsius;
+}
+
+jQuery("#min_temp_m, #min_temp_i, #max_temp_m, #max_temp_i").on("change", function () {
+    var which = this.id.startsWith("min_") ? "min" : "max";
+    var metric = this.id.endsWith("_m");
+    var value = setChartScale(which, metric);
+    if (value === false) return;
+    var min = which === "min" ? value : parseFloat(jQuery("#min_temp_m").val());
+    var max = which === "max" ? value : parseFloat(jQuery("#max_temp_m").val());
+    if (min >= max) {
+        alert("Chart minimum temperature must be lower than the maximum temperature.");
+        var fallback = which === "min" ? -40 : 100;
+        jQuery("#" + which + "_temp_m").val(fallback);
+        jQuery("#" + which + "_temp_i").val(C_to_F(fallback).toFixed(rnd_temp));
+        min = parseFloat(jQuery("#min_temp_m").val());
+        max = parseFloat(jQuery("#max_temp_m").val());
+        if (min >= max) {
+            jQuery("#min_temp_m").val(-40);
+            jQuery("#min_temp_i").val(C_to_F(-40).toFixed(rnd_temp));
+            jQuery("#max_temp_m").val(100);
+            jQuery("#max_temp_i").val(C_to_F(100).toFixed(rnd_temp));
+        }
+    }
+    min_temp = parseFloat(jQuery("#min_temp_m").val());
+    max_temp = parseFloat(jQuery("#max_temp_m").val());
     recalc();
 });
 
