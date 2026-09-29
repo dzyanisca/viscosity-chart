@@ -125,8 +125,8 @@ function getChartData() {
         for (var oil = 1; oil <= (oil2Visible ? 2 : 1); oil++) {
             var viscosity = getViscx(temperature, oil);
             row.push(Number.isFinite(viscosity) && viscosity > 0 ? viscosity : null);
-            row.push(oilLegend(oil) + ": " + viscosity.toFixed(rnd_visc) + " cSt @ " + temperature.toFixed(rnd_temp) + " °C\n" +
-                cSt_to_SUS(viscosity).toFixed(rnd_visc) + " SUS @ " + C_to_F(temperature).toFixed(rnd_temp) + " ?F");
+            row.push(oilLegend(oil) + "\n" + viscosity.toFixed(rnd_visc) + " cSt @ " + temperature.toFixed(rnd_temp) + " °C\n" +
+                cSt_to_SUS(viscosity).toFixed(rnd_visc) + " SUS @ " + C_to_F(temperature).toFixed(rnd_temp) + " °F");
         }
         rows.push(row);
     }
